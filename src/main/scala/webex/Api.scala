@@ -1,9 +1,11 @@
 package webex
 
 import cats.Functor
-import com.softwaremill.sttp._
-import com.typesafe.config.ConfigFactory
 import cats.implicits._
+import com.softwaremill.sttp._
+import com.typesafe.config.{ConfigFactory, ConfigRenderOptions}
+import io.circe.generic.auto._
+import io.circe.parser.decode
 
 import scala.collection.JavaConverters._
 
@@ -25,21 +27,25 @@ class Api[F[_]: Functor](token: String)(implicit backend: SttpBackend[F, _]) {
       .send().void
   }
 
-  def listMessages(groupId: String): F[List[String]] = {
+  def listMessages(groupId: String): F[List[Message]] = {
     sttp.auth.bearer(token)
       .get(uri"https://api.ciscospark.com/v1/messages?roomId=$groupId&mentionedPeople=me")
       .send().map(response => getMessages(response.unsafeBody))
   }
 
-  def listDirectMessages(userId: String): F[List[String]] = {
+  def listDirectMessages(userId: String): F[List[Message]] = {
     sttp.auth.bearer(token)
       .get(uri"https://api.ciscospark.com/v1/messages/direct?personId=$userId")
       .send().map(response => getMessages(response.unsafeBody))
   }
 
-  private def getMessages(response: String): List[String] = {
+  private def getMessages(response: String): List[Message] = {
     ConfigFactory.parseString(response)
-      .getConfigList("items").asScala.toList
-      .map(_.getString("text"))
+      .getObjectList("items").asScala.toList
+      .map(o => getMessage(o.render(ConfigRenderOptions.concise())))
+  }
+
+  private def getMessage(json: String): Message = {
+    decode[Message](json).getOrElse(throw new RuntimeException("Something wrong with decoding message"))
   }
 }
