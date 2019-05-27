@@ -14,6 +14,9 @@ libraryDependencies += "com.softwaremill.sttp" %% "async-http-client-backend-cat
 
 libraryDependencies += "com.typesafe" % "config" % "1.3.4"
 
+libraryDependencies += "com.bot4s" %% "telegram-core" % "4.2.0-RC1"
+libraryDependencies += "com.bot4s" %% "telegram-akka" % "4.2.0-RC1"
+
 val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
