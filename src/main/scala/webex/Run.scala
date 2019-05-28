@@ -1,6 +1,7 @@
 package webex
 
 import cats.effect.{ExitCode, IO, IOApp}
+import cats.implicits._
 import com.softwaremill.sttp.SttpBackend
 import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.typesafe.config.{Config, ConfigFactory}
@@ -21,8 +22,8 @@ object Run extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      directMessages <- webexApi.listDirectMessages(userId)
-      _ = println(directMessages.items.take(5))
+      messages <- webexApi.listDirectMessages(userId)
+      _ <- IO(messages.items.take(3).foreach(println))
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }

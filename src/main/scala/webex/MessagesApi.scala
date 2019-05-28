@@ -20,7 +20,7 @@ class MessagesApi[F[_] : Functor](client: WebexClient[F]) {
   }
 
   def listMessages(groupId: String): F[Messages] = {
-    client.execute(ListMessages(groupId, Some(List("me"))))
+    client.execute(ListMessages(groupId, Some("me")))
   }
 
   def listDirectMessages(userId: String): F[Messages] = {
