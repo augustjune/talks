@@ -2,7 +2,7 @@ package webex
 
 import io.circe.{Encoder, Printer}
 import io.circe.syntax._
-import webex.methods.{Delete, Get, Method, Post}
+import webex.methods.{Delete, Get, Method}
 
 package object marshalling {
 
@@ -13,25 +13,28 @@ package object marshalling {
 
     def routeWithParameters: String = method.requestMethod match {
       case Get =>
-        val js = method.asJson.pretty(Printer.noSpaces.copy(dropNullValues = true))
-        val options = List("\"", "{", "}").foldLeft(js) {
-          case (acc, el) => acc.replace(el, "")
-        }
-          .replace(":", "=")
-          .replace(",", "&")
-
+        val options = namedParameterList
         if (options.isEmpty) method.route
         else s"${method.route}?$options"
 
-      case Delete =>
-        val cursor = method.asJson.hcursor
-        val params = cursor.keys.getOrElse(Nil)
-          .flatMap(key => cursor.get[String](key).toOption)
-          .mkString(",")
-
-        s"${method.route}/$params"
+      case Delete => s"${method.route}/$anonymousParameterList"
 
       case _ => method.route
+    }
+
+    private def namedParameterList: String = {
+      val js = method.asJson.pretty(Printer.noSpaces.copy(dropNullValues = true))
+      List("\"", "{", "}")
+        .foldLeft(js) { case (acc, el) => acc.replace(el, "") }
+        .replace(":", "=")
+        .replace(",", "&")
+    }
+
+    private def anonymousParameterList: String = {
+      val cursor = method.asJson.hcursor
+      cursor.keys.getOrElse(Nil)
+        .flatMap(key => cursor.get[String](key).toOption)
+        .mkString(",")
     }
   }
 
