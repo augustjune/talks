@@ -21,8 +21,8 @@ object Run extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      directMessages <- webexApi.listMessages(space)
-      _ = println(directMessages)
+      directMessages <- webexApi.listDirectMessages(userId)
+      _ = println(directMessages.items.take(5))
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }
