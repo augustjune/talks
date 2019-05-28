@@ -8,6 +8,4 @@ trait Method[R] {
   def requestMethod: RequestMethod
 
   def route: String
-
-  def body: Option[String]
 }

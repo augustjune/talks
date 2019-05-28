@@ -13,16 +13,4 @@ case class CreateMessage(roomId: Option[String] = None,
   def requestMethod: RequestMethod = Post
 
   def route: String = "/v1/messages"
-
-  def body: Option[String] =
-    Some(
-      s"""
-        |{
-        | "roomId" : "$roomId",
-        | "toPersonId" : "$toPersonId",
-        | "toPersonEmail" : "$toPersonEmail",
-        | "text" : "$text",
-        | "markdown" : "$markdown"
-        |}
-      """.stripMargin)
 }

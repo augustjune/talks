@@ -10,15 +10,15 @@ case class ListMessages(roomId: String,
                         max: Option[Int] = None) extends Method[List[Message]] {
   def requestMethod: RequestMethod = Get
 
-  def route: String = s"/v1/messages?$roomId$otherArgs"
+  def route: String = s"/v1/messages?roomId=$roomId$otherArgs"
 
   private def otherArgs: String = List(
     "mentionedPeople" -> mentionedPeople.map(_.mkString(",")),
     "before" -> before,
     "beforeMEssage" -> beforeMessage,
     "max" -> max.map(_.toString))
-    .map { case (n, v) => RouteBuilder.arg(Some(n), v) }.mkString(",")
+    .map { case (n, v) => RouteBuilder.arg(Some(n), v) }
+    .filterNot(_.isEmpty)
+    .mkString("&", "&", "")
 
-
-  def body: Option[String] = None
 }
