@@ -5,6 +5,7 @@ import cats.implicits._
 import com.softwaremill.sttp.SttpBackend
 import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.typesafe.config.{Config, ConfigFactory}
+import webex.api.MessagesApi
 import webex.clients.{SttpClient, WebexClient}
 
 object Run extends IOApp {
