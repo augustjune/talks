@@ -5,7 +5,7 @@ import cats.implicits._
 import com.softwaremill.sttp.SttpBackend
 import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.typesafe.config.{Config, ConfigFactory}
-import webex.api.{MessagesApi, RoomsApi}
+import webex.api.{MembershipApi, MessagesApi, RoomsApi}
 import webex.clients.{SttpClient, WebexClient}
 
 object Run extends IOApp {
@@ -21,10 +21,10 @@ object Run extends IOApp {
 
   val messageApi = new MessagesApi[IO](client)
   val roomsApi = new RoomsApi[IO](client)
+  val membershipApi = new MembershipApi[IO](client)
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      _ <- roomsApi.deleteRoom("Y2lzY29zcGFyazovL3VzL1JPT00vMzcyOGJhZDAtODFlOS0xMWU5LWFiYjAtY2I5MzYwN2U2MzY2")
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }
