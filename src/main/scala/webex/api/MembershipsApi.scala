@@ -5,7 +5,7 @@ import webex.methods.memberships._
 import webex.model.{Membership, Memberships}
 import io.circe.generic.auto._
 
-class MembershipApi[F[_]](client: WebexClient[F]) {
+class MembershipsApi[F[_]](client: WebexClient[F]) {
   def listMemberships(roomId: Option[String] = None,
                       personId: Option[String] = None,
                       personEmail: Option[String] = None,

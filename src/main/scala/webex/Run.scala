@@ -5,7 +5,7 @@ import cats.implicits._
 import com.softwaremill.sttp.SttpBackend
 import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.typesafe.config.{Config, ConfigFactory}
-import webex.api.{MembershipApi, MessagesApi, RoomsApi}
+import webex.api.{MembershipsApi, MessagesApi, RoomsApi}
 import webex.clients.{SttpClient, WebexClient}
 
 object Run extends IOApp {
@@ -21,7 +21,7 @@ object Run extends IOApp {
 
   val messageApi = new MessagesApi[IO](client)
   val roomsApi = new RoomsApi[IO](client)
-  val membershipApi = new MembershipApi[IO](client)
+  val membershipApi = new MembershipsApi[IO](client)
 
   def run(args: List[String]): IO[ExitCode] =
     for {
