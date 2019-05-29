@@ -8,4 +8,3 @@ case class Message(id: String,
                    personEmail: String,
                    mentionedPeople: Option[List[String]],
                    created: String)
-

@@ -1,10 +1,9 @@
 package webex.clients
 
 import cats.Functor
-import com.softwaremill.sttp._
-import webex.methods.{Delete, Get, Method, Post, RequestMethod}
+import com.softwaremill.sttp.{UriContext, sttp, SttpBackend, Method => SttpMethod}
+import webex.methods._
 import cats.implicits._
-import io.circe.generic.AutoDerivation
 import io.circe.{Decoder, Encoder}
 import io.circe.parser.decode
 import webex.marshalling._
@@ -13,11 +12,12 @@ class SttpClient[F[_] : Functor](token: String)(implicit backend: SttpBackend[F,
 
   private val client = sttp.auth.bearer(token).contentType("application/json")
 
-  private val methodMapping: Map[RequestMethod, com.softwaremill.sttp.Method] =
+  private val methodMapping: Map[RequestMethod, SttpMethod] =
     Map(
-      Get -> com.softwaremill.sttp.Method.GET,
-      Post -> com.softwaremill.sttp.Method.POST,
-      Delete -> com.softwaremill.sttp.Method.DELETE)
+      Get -> SttpMethod.GET,
+      Post -> SttpMethod.POST,
+      Delete -> SttpMethod.DELETE,
+      Put -> SttpMethod.PUT)
 
 
   def execute[M <: Method[R], R](method: M)(implicit requestEncoder: Encoder[M], responseDecoder: Decoder[R]): F[R] = {

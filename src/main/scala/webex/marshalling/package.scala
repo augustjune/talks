@@ -11,16 +11,18 @@ package object marshalling {
   implicit class EncodableMethod[M <: Method[_] : Encoder](method: M) {
     def toJsonString: String = method.asJson.pretty(printer)
 
-    def routeWithParameters: String = method.requestMethod match {
-      case Get =>
-        val options = namedParameterList
-        if (options.isEmpty) method.route
-        else s"${method.route}?$options"
+    def routeWithParameters: String =
+      if (method.route.endsWith("/")) s"${method.route}$anonymousParameterList"
+      else method.requestMethod match {
+        case Get =>
+          val options = namedParameterList
+          if (options.isEmpty) method.route
+          else s"${method.route}?$options"
 
-      case Delete => s"${method.route}/$anonymousParameterList"
+        case Delete => s"${method.route}/$anonymousParameterList"
 
-      case _ => method.route
-    }
+        case _ => method.route
+      }
 
     private def namedParameterList: String = {
       val js = method.asJson.pretty(Printer.noSpaces.copy(dropNullValues = true))
