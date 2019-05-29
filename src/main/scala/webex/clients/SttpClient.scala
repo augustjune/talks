@@ -25,7 +25,7 @@ class SttpClient[F[_] : Functor](token: String)(implicit backend: SttpBackend[F,
     println(s"Uri: $path")
     val request = client
       .method(methodMapping(method.requestMethod), uri"$path")
-      .body(method.toJsonString)
+      .body(method.body)
 
     request.send().map(_.body.map(emptyOrSame) match {
       case Right(r) => decode[R](r).getOrElse(throw new RuntimeException(s"Failed to decode the response: $r"))

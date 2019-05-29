@@ -2,17 +2,25 @@ package webex
 
 import io.circe.{Encoder, Printer}
 import io.circe.syntax._
-import webex.methods.{Delete, Get, Method}
+import webex.methods._
 
 package object marshalling {
 
   val printer: Printer = Printer.spaces2.copy(dropNullValues = true)
 
   implicit class EncodableMethod[M <: Method[_] : Encoder](method: M) {
-    def toJsonString: String = method.asJson.pretty(printer)
+    def body: String = method.requestMethod match {
+      case Post => method.asJson.pretty(printer)
+
+      case Put =>
+        val json = method.asJson.asObject.get
+        json.remove(json.keys.head).asJson.pretty(printer)
+
+      case _ => "{}"
+    }
 
     def routeWithParameters: String =
-      if (method.route.endsWith("/")) s"${method.route}$anonymousParameterList"
+      if (method.route.endsWith("/")) s"${method.route}$firstArgumentValue"
       else method.requestMethod match {
         case Get =>
           val options = namedParameterList
@@ -30,6 +38,13 @@ package object marshalling {
         .foldLeft(js) { case (acc, el) => acc.replace(el, "") }
         .replace(":", "=")
         .replace(",", "&")
+    }
+
+    private def firstArgumentValue: String = {
+      val cursor = method.asJson.hcursor
+      cursor.keys.getOrElse(Nil)
+        .flatMap(key => cursor.get[String](key).toOption)
+        .head
     }
 
     private def anonymousParameterList: String = {

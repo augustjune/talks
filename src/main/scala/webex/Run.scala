@@ -24,13 +24,7 @@ object Run extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      room <- roomsApi.createRoom("Api room213132")
-      rooms <- roomsApi.listRooms()
-      _ = rooms.items.foreach(println)
-      _ = println()
-      _ <- roomsApi.deleteRoom(room.id)
-      roomsAfter <- roomsApi.listRooms()
-      _ = roomsAfter.items.foreach(println)
+      _ <- roomsApi.deleteRoom("Y2lzY29zcGFyazovL3VzL1JPT00vMzcyOGJhZDAtODFlOS0xMWU5LWFiYjAtY2I5MzYwN2U2MzY2")
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }

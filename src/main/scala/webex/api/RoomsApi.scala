@@ -21,7 +21,7 @@ class RoomsApi[F[_]](client: WebexClient[F]) {
     client.execute(GetRoomDetails(roomId))
 
   def updateRoom(roomId: String, title: String): F[Room] =
-    client.execute(UpdateRoom(roomId))
+    client.execute(UpdateRoom(roomId, title))
 
   def deleteRoom(roomId: String): F[Unit] =
     client.execute(DeleteRoom(roomId))
