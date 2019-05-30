@@ -1,5 +1,7 @@
 package webex
 
+import cats.Semigroupal
+
 import concurrent.duration._
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.implicits._
@@ -28,11 +30,10 @@ object Run extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      me <- peopleApi.me
-      _ = println("Me: " + me.displayName)
-      people <- peopleApi.listPeople(email = Some("jurij.jurich@gmail.com"))
-      _ = println("Others:")
-      _ = people.items.map(_.displayName).foreach(println)
+      rooms <- roomsApi.listRooms()
+      _ <- List(1,2,3).parTraverse(IO.pure)
+      roomsWithMembers <- rooms.items.traverse(r => Semigroupal[IO].product(IO.pure(r.title), r.members[IO].map(_.map(_.displayName))))
+      _ = roomsWithMembers.foreach(println)
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }

@@ -1,9 +1,9 @@
 package webex.api.syntax
 
-import cats.Functor
-import webex.api.{MembershipsApi, MessagesApi, RoomsApi}
-import webex.model.{Membership, Memberships, Message, Room}
 import cats.implicits._
+import cats.{Functor, Monad}
+import webex.api.{MembershipsApi, MessagesApi, PeopleApi, RoomsApi}
+import webex.model._
 
 final class RichRoom(room: Room) {
 
@@ -13,6 +13,16 @@ final class RichRoom(room: Room) {
   def sendMessage[F[_]](text: String)
                        (implicit messagesApi: MessagesApi[F]): F[Message] =
     messagesApi.sendMessage(room.id, text)
+
+  /**
+    * Lists people in the rooms
+    */
+  def members[F[_]](implicit F: Monad[F],
+                    membershipsApi: MembershipsApi[F],
+                    peopleApi: PeopleApi[F]): F[List[Person]] = {
+    membershipsApi.listMemberships(roomId = Some(room.id)).map(_.items.map(_.personId))
+      .flatMap(_.traverse(personId => peopleApi.getPerson(personId)))
+  }
 
   /**
     * Renames the room with new title
