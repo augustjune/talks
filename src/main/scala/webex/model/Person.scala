@@ -1,0 +1,21 @@
+package webex.model
+
+case class Person(id: String,
+                  emails: List[String],
+                  phoneNumbers: Option[List[String]],
+                  displayName: String,
+                  nickName: Option[String],
+                  firstName: Option[String],
+                  lastName: Option[String],
+                  avatar: Option[String],
+                  orgId: String,
+                  roles: Option[List[String]],
+                  licenses: Option[List[String]],
+                  created: String,
+                  lastModified: Option[String],
+                  timeZone: Option[String],
+                  lastActivity: Option[String],
+                  status: String,
+                  invitePending: Option[Boolean],
+                  loginEnabled: Option[Boolean],
+                  `type`: String)

@@ -18,16 +18,21 @@ object Run extends IOApp {
   def userId: String = config.getString("userId")
   def space: String = config.getString("space")
 
-  implicit val backend: SttpBackend[IO, Nothing] = AsyncHttpClientCatsBackend[cats.effect.IO]()
+  implicit val backend: SttpBackend[IO, Nothing] = AsyncHttpClientCatsBackend[IO]()
   val client: WebexClient[IO] = new SttpClient[IO](token)
 
   implicit val messageApi = new MessagesApi[IO](client)
   implicit val roomsApi = new RoomsApi[IO](client)
   implicit val membershipApi = new MembershipsApi[IO](client)
+  implicit val peopleApi = new PeopleApi[IO](client)
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      rooms <- roomsApi.listRooms()
+      me <- peopleApi.me
+      _ = println("Me: " + me.displayName)
+      people <- peopleApi.listPeople(email = Some("jurij.jurich@gmail.com"))
+      _ = println("Others:")
+      _ = people.items.map(_.displayName).foreach(println)
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }
