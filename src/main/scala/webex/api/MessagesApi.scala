@@ -7,16 +7,16 @@ import webex.model._
 
 class MessagesApi[F[_]](client: WebexClient[F]) {
 
-  def sendGroupMessage(groupId: String, text: String): F[Message] = {
-    client.execute(CreateMessage(roomId = Some(groupId), text = text))
+  def sendMessage(roomId: String, text: String): F[Message] = {
+    client.execute(CreateMessage(roomId = Some(roomId), text = text))
   }
 
   def sendDirectMessage(userId: String, text: String): F[Message] = {
     client.execute(CreateMessage(toPersonId = Some(userId), text = text))
   }
 
-  def listGroupMessages(groupId: String): F[Messages] = {
-    client.execute(ListMessages(groupId, Some("me")))
+  def listMessages(roomId: String): F[Messages] = {
+    client.execute(ListMessages(roomId, Some("me")))
   }
 
   def listDirectMessages(userId: String): F[Messages] = {
