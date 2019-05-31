@@ -1,11 +1,14 @@
-package webex.api
+package webex.api.specific
 
 import webex.clients.WebexClient
 import webex.methods.webhooks._
 import webex.model.{Webhook, Webhooks}
 import io.circe.generic.auto._
 
-class WebhooksApi[F[_]](client: WebexClient[F]) {
+trait WebhooksApi[F[_]] {
+
+  def client: WebexClient[F]
+
   def listWebhooks(max: Option[Int] = None): F[Webhooks] =
     client.execute(ListWebhooks(max))
 

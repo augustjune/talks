@@ -1,6 +1,6 @@
 package webex.api.syntax
 
-import webex.api.WebhooksApi
+import webex.api.specific.WebhooksApi
 import webex.model.Webhook
 
 final class RichWebhook(webhook: Webhook) {

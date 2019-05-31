@@ -1,11 +1,13 @@
-package webex.api
+package webex.api.specific
 
-import io.circe.generic.auto._
 import webex.clients.WebexClient
 import webex.methods.messages._
-import webex.model._
+import webex.model.{Message, Messages}
+import io.circe.generic.auto._
 
-class MessagesApi[F[_]](client: WebexClient[F]) {
+trait MessagesApi[F[_]] {
+
+  def client: WebexClient[F]
 
   def sendMessage(roomId: String, text: String): F[Message] = {
     client.execute(CreateMessage(roomId = Some(roomId), text = text))

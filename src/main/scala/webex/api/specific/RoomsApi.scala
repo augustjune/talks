@@ -1,11 +1,13 @@
-package webex.api
+package webex.api.specific
 
 import webex.clients.WebexClient
 import webex.methods.rooms._
 import webex.model.{Room, Rooms}
 import io.circe.generic.auto._
 
-class RoomsApi[F[_]](client: WebexClient[F]) {
+trait RoomsApi[F[_]] {
+
+  def client: WebexClient[F]
 
   def listRooms(teamId: Option[String] = None,
                 roomType: Option[String] = None,

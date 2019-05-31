@@ -1,11 +1,13 @@
-package webex.api
+package webex.api.specific
 
 import webex.clients.WebexClient
 import webex.methods.people._
 import webex.model.{People, Person}
 import io.circe.generic.auto._
 
-class PeopleApi[F[_]](client: WebexClient[F]) {
+trait PeopleApi[F[_]] {
+
+  def client: WebexClient[F]
 
   def me: F[Person] = {
     client.execute(GetMe)

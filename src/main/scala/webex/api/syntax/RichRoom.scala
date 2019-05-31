@@ -2,7 +2,7 @@ package webex.api.syntax
 
 import cats.implicits._
 import cats.{Functor, Monad}
-import webex.api.{MembershipsApi, MessagesApi, PeopleApi, RoomsApi}
+import webex.api.specific.{MembershipsApi, MessagesApi, PeopleApi, RoomsApi}
 import webex.model._
 
 final class RichRoom(room: Room) {
