@@ -11,8 +11,10 @@ class MessagesApi[F[_]](client: WebexClient[F]) {
     client.execute(CreateMessage(roomId = Some(roomId), text = text))
   }
 
-  def sendDirectMessage(userId: String, text: String): F[Message] = {
-    client.execute(CreateMessage(toPersonId = Some(userId), text = text))
+  def sendDirectMessage(userId: String,
+                        text: String,
+                        file: Option[String] = None): F[Message] = {
+    client.execute(CreateMessage(toPersonId = Some(userId), text = text, files = file))
   }
 
   def listMessages(roomId: String): F[Messages] = {

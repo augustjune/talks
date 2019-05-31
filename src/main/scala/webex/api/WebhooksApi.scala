@@ -20,11 +20,11 @@ class WebhooksApi[F[_]](client: WebexClient[F]) {
   def getWebhookDetails(webhookId: String): F[Webhook] =
     client.execute(GetWebhookDetails(webhookId))
 
-  def updateMembership(webhookId: String,
-                       name: String,
-                       targetUrl: String,
-                       secret: Option[String] = None,
-                       status: Option[String] = None): F[Webhook] =
+  def updateWebhook(webhookId: String,
+                    name: String,
+                    targetUrl: String,
+                    secret: Option[String] = None,
+                    status: Option[String] = None): F[Webhook] =
     client.execute(UpdateWebhook(webhookId, name, targetUrl, secret, status))
 
   def deleteWebhook(webhookId: String): F[Unit] =
