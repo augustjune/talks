@@ -1,13 +1,18 @@
 package webex.api
 
+import cats.Functor
+import cats.implicits._
 import webex.clients.WebexClient
 import webex.methods.webhooks._
 import webex.model.{Webhook, Webhooks}
 import io.circe.generic.auto._
 
-class WebhooksApi[F[_]](client: WebexClient[F]) {
-  def listWebhooks(max: Option[Int] = None): F[Webhooks] =
-    client.execute(ListWebhooks(max))
+class WebhooksApi[F[_]: Functor](client: WebexClient[F]) {
+  def listWebhooks(max: Option[Int] = None): F[List[Webhook]] = {
+    client
+      .execute[ListWebhooks, Webhooks](ListWebhooks(max))
+      .map(_.items)
+  }
 
   def createWebhook(name: String,
                     targetUrl: String,

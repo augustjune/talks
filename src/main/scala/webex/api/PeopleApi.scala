@@ -1,11 +1,13 @@
 package webex.api
 
+import cats.Functor
+import cats.implicits._
 import webex.clients.WebexClient
 import webex.methods.people._
 import webex.model.{People, Person}
 import io.circe.generic.auto._
 
-class PeopleApi[F[_]](client: WebexClient[F]) {
+class PeopleApi[F[_]: Functor](client: WebexClient[F]) {
 
   def me: F[Person] = {
     client.execute(GetMe)
@@ -18,8 +20,10 @@ class PeopleApi[F[_]](client: WebexClient[F]) {
                  displayName: Option[String] = None,
                  id: Option[String] = None,
                  orgId: Option[String] = None,
-                 max: Option[Int] = None): F[People] = {
-    client.execute(ListPeople(email, displayName, id, orgId, max))
+                 max: Option[Int] = None): F[List[Person]] = {
+    client
+      .execute[ListPeople, People](ListPeople(email, displayName, id, orgId, max))
+      .map(_.items)
   }
 
   def createPerson(emails: String,

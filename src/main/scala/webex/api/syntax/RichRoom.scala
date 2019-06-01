@@ -20,7 +20,7 @@ final class RichRoom(room: Room) {
   def members[F[_]](implicit F: Monad[F],
                     membershipsApi: MembershipsApi[F],
                     peopleApi: PeopleApi[F]): F[List[Person]] = {
-    membershipsApi.listMemberships(roomId = Some(room.id)).map(_.items.map(_.personId))
+    membershipsApi.listMemberships(roomId = Some(room.id)).map(_.map(_.personId))
       .flatMap(_.traverse(personId => peopleApi.getPerson(personId)))
   }
 
@@ -55,11 +55,11 @@ final class RichRoom(room: Room) {
     */
   def remove[F[_]](personId: String)
                   (implicit F: Functor[F], membershipsApi: MembershipsApi[F]): F[Boolean] =
-    membershipsApi.listMemberships(roomId = Some(room.id), personId = Some(personId)).map {
-      case Memberships(items) => items.foldLeft(false) {
+    membershipsApi
+      .listMemberships(roomId = Some(room.id), personId = Some(personId))
+      .map(_.foldLeft(false) {
         case (_, m) => membershipsApi.deleteMembership(m.id); true
-      }
-    }
+      })
 
 
   /**
@@ -70,9 +70,9 @@ final class RichRoom(room: Room) {
     */
   def makeAdmin[F[_]](personId: String)
                      (implicit F: Functor[F], membershipsApi: MembershipsApi[F]): F[Boolean] =
-    membershipsApi.listMemberships(roomId = Some(room.id), personId = Some(personId)).map {
-      case Memberships(items) => items.foldLeft(false) {
+    membershipsApi
+      .listMemberships(roomId = Some(room.id), personId = Some(personId))
+      .map(_.foldLeft(false) {
         case (_, m) => membershipsApi.updateMembership(m.id, isModerator = true); true
-      }
-    }
+      })
 }

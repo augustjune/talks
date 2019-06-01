@@ -31,8 +31,7 @@ object Run extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
     for {
       rooms <- roomsApi.listRooms()
-      _ <- List(1,2,3).parTraverse(IO.pure)
-      roomsWithMembers <- rooms.items.traverse(r => Semigroupal[IO].product(IO.pure(r.title), r.members[IO].map(_.map(_.displayName))))
+      roomsWithMembers <- rooms.traverse(r => Semigroupal[IO].product(IO.pure(r.title), r.members[IO].map(_.map(_.displayName))))
       _ = roomsWithMembers.foreach(println)
       _ <- IO(backend.close())
     } yield ExitCode.Success

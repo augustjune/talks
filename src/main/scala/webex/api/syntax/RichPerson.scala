@@ -21,6 +21,6 @@ final class RichPerson(person: Person) {
   /**
     * Lists messages received from this person in direct chat
     */
-  def receivedMessages[F[_]](implicit messagesApi: MessagesApi[F]): F[Messages] =
+  def receivedMessages[F[_]](implicit messagesApi: MessagesApi[F]): F[List[Message]] =
     messagesApi.listDirectMessages(person.id)
 }
