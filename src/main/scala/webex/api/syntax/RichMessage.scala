@@ -1,6 +1,6 @@
 package webex.api.syntax
 
-import webex.api.specific.MessagesApi
+import webex.api.MessagesApi
 import webex.model.Message
 
 final class RichMessage(message: Message) {

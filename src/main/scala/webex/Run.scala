@@ -23,11 +23,15 @@ object Run extends IOApp {
   implicit val backend: SttpBackend[IO, Nothing] = AsyncHttpClientCatsBackend[IO]()
   val client: WebexClient[IO] = new SttpClient[IO](token)
 
-  implicit val webexApi: WebexApi[IO] = new WebexApi(client)
+  implicit val messageApi = new MessagesApi[IO](client)
+  implicit val roomsApi = new RoomsApi[IO](client)
+  implicit val membershipApi = new MembershipsApi[IO](client)
+  implicit val peopleApi = new PeopleApi[IO](client)
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      rooms <- webexApi.listRooms()
+      rooms <- roomsApi.listRooms()
+      _ <- List(1,2,3).parTraverse(IO.pure)
       roomsWithMembers <- rooms.items.traverse(r => Semigroupal[IO].product(IO.pure(r.title), r.members[IO].map(_.map(_.displayName))))
       _ = roomsWithMembers.foreach(println)
       _ <- IO(backend.close())

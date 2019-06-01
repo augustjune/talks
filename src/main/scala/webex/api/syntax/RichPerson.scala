@@ -1,6 +1,6 @@
 package webex.api.syntax
 
-import webex.api.specific.{MessagesApi, PeopleApi}
+import webex.api.{MessagesApi, PeopleApi}
 import webex.model.{Message, Messages, Person}
 
 final class RichPerson(person: Person) {

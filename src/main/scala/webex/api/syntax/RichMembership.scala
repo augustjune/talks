@@ -1,6 +1,6 @@
 package webex.api.syntax
 
-import webex.api.specific.MembershipsApi
+import webex.api.MembershipsApi
 import webex.model.Membership
 
 final class RichMembership(membership: Membership) {
