@@ -33,11 +33,11 @@ package object marshalling {
       }
 
     private def namedParameterList: String = {
-      val js = method.asJson.pretty(Printer.noSpaces.copy(dropNullValues = true))
-      List("\"", "{", "}")
-        .foldLeft(js) { case (acc, el) => acc.replace(el, "") }
-        .replace(":", "=")
-        .replace(",", "&")
+      method.asJson.pretty(Printer.noSpaces.copy(dropNullValues = true))
+        .replace("\":\"", "=")
+        .replace("\",\"", "&")
+        .drop(2)        // {"
+        .dropRight(2)   // "}
     }
 
     private def firstArgumentValue: String = {
