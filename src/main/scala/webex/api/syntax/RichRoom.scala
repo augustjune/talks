@@ -15,6 +15,15 @@ final class RichRoom(room: Room) {
     messagesApi.sendMessage(room.id, text)
 
   /**
+    * Lists all the messages sent in this room
+    *
+    * In case if this room is a group, only messages mentioned to the bot are listed
+    */
+  def listMessages[F[_]](implicit messagesApi: MessagesApi[F]): F[List[Message]] =
+    if (room.isGroup) messagesApi.listMessages(room.id, mentionedPeople = Some("me"))
+    else messagesApi.listMessages(room.id)
+
+  /**
     * Lists people in the rooms
     */
   def members[F[_]](implicit F: Monad[F],

@@ -1,5 +1,12 @@
 package webex.model
 
+object Room {
+  object Type {
+    val DIRECT = "direct"
+    val GROUP = "group"
+  }
+}
+
 case class Room(id: String,
                 title: String,
                 `type`: String,
@@ -8,8 +15,8 @@ case class Room(id: String,
                 lastActivity: String,
                 creatorId: String,
                 created: String) {
-  def isGroup: Boolean = `type` == "group"
+  def isGroup: Boolean = `type` == Room.Type.GROUP
 
-  def isDirect: Boolean = !isGroup
+  def isDirect: Boolean = `type` == Room.Type.DIRECT
 }
 

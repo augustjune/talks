@@ -9,8 +9,10 @@ import webex.model._
 
 class MessagesApi[F[_] : Functor](client: WebexClient[F]) {
 
-  def sendMessage(roomId: String, text: String): F[Message] = {
-    client.execute(CreateMessage(roomId = Some(roomId), text = text))
+  def sendMessage(roomId: String,
+                  text: String,
+                  file: Option[String] = None): F[Message] = {
+    client.execute(CreateMessage(roomId = Some(roomId), text = text, files = file))
   }
 
   def sendDirectMessage(userId: String,
@@ -19,9 +21,13 @@ class MessagesApi[F[_] : Functor](client: WebexClient[F]) {
     client.execute(CreateMessage(toPersonId = Some(userId), text = text, files = file))
   }
 
-  def listMessages(roomId: String): F[List[Message]] = {
+  def listMessages(roomId: String,
+                   mentionedPeople: Option[String] = None,
+                   before: Option[String] = None,
+                   beforeMessage: Option[String] = None,
+                   max: Option[Int] = None): F[List[Message]] = {
     client
-      .execute[ListMessages, Messages](ListMessages(roomId, Some("me")))
+      .execute[ListMessages, Messages](ListMessages(roomId, mentionedPeople, before, beforeMessage, max))
       .map(_.items)
   }
 
