@@ -22,7 +22,6 @@ class SttpClient[F[_] : Functor](token: String)(implicit backend: SttpBackend[F,
 
   def execute[M <: Method[R], R](method: M)(implicit requestEncoder: Encoder[M], responseDecoder: Decoder[R]): F[R] = {
     val path = s"$basicRoute${method.routeWithParameters}"
-    println(s"Uri: $path")
     val request = client
       .method(methodMapping(method.requestMethod), uri"$path")
       .body(method.body)

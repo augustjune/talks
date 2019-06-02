@@ -1,6 +1,10 @@
 package webex
 
-import cats.Semigroupal
+import java.time.{LocalDate, LocalDateTime, ZoneId}
+import java.time.format.DateTimeFormatter
+import java.util.Date
+
+import cats.{Semigroupal, Show}
 
 import concurrent.duration._
 import cats.effect.{ExitCode, IO, IOApp}
@@ -11,6 +15,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import webex.api._
 import webex.api.syntax._
 import webex.clients.{SttpClient, WebexClient}
+import webex.model.Message
 
 object Run extends IOApp {
 
@@ -28,11 +33,14 @@ object Run extends IOApp {
   implicit val membershipApi = new MembershipsApi[IO](client)
   implicit val peopleApi = new PeopleApi[IO](client)
 
+  val bot = new Bot(roomsApi, messageApi)
+
+  implicit val messageShow: Show[Message] = (t: Message) => s"${t.personId} [${t.created}]: ${t.text}"
+
   def run(args: List[String]): IO[ExitCode] =
     for {
-      rooms <- roomsApi.listRooms()
-      roomsWithMembers <- rooms.traverse(r => Semigroupal[IO].product(IO.pure(r.title), r.members[IO].map(_.map(_.displayName))))
-      _ = roomsWithMembers.foreach(println)
+      _ <- IO(println(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(LocalDateTime.now().atZone(ZoneId.of("+2")))))
+      _ <- bot.roomMessages(space)(1.second).showLinesStdOut.compile.drain
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }
