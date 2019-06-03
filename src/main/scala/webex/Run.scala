@@ -11,7 +11,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import webex.api._
 import webex.api.syntax._
 import webex.clients.{SttpClient, WebexClient}
-import webex.model.Message
+import webex.model.{Message, Room}
 
 object Run extends IOApp {
 
@@ -33,10 +33,11 @@ object Run extends IOApp {
   val bot = new Bot(roomsApi, messageApi)
 
   implicit val messageShow: Show[Message] = (t: Message) => s"${t.personId} [${t.created}]: ${t.text}"
+  implicit val roomShow: Show[Room] = (r: Room) => s"${r.id} [${r.created}]: ${r.title}"
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      _ <- bot.roomMessages(direct)(1.second).showLinesStdOut.compile.drain
+      _ <- bot.rooms.showLinesStdOut.compile.drain
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }

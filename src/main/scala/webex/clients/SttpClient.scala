@@ -3,10 +3,11 @@ package webex.clients
 import cats.Functor
 import com.softwaremill.sttp.{UriContext, sttp, SttpBackend, Method => SttpMethod}
 import webex.methods._
-import cats.implicits._
 import io.circe.{Decoder, Encoder}
 import io.circe.parser.decode
 import webex.marshalling._
+
+import cats.implicits._
 
 class SttpClient[F[_] : Functor](token: String)(implicit backend: SttpBackend[F, Nothing]) extends WebexClient[F] {
 
@@ -26,10 +27,11 @@ class SttpClient[F[_] : Functor](token: String)(implicit backend: SttpBackend[F,
       .method(methodMapping(method.requestMethod), uri"$path")
       .body(method.body)
 
-    request.send().map(_.body.map(emptyOrSame) match {
-      case Right(r) => decode[R](r).getOrElse(throw new RuntimeException(s"Failed to decode the response: $r"))
-      case Left(error) => throw new RuntimeException(s"Failed request to ${request.uri} $error")
-    })
+    request
+      .mapResponse(emptyOrSame)
+      .mapResponse(r => decode[R](r).getOrElse(throw new RuntimeException(s"Failed to decode the response: $r")))
+      .send()
+      .map (_.unsafeBody)
   }
 
   private def emptyOrSame(s: String): String =

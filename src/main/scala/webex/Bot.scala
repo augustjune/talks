@@ -20,21 +20,21 @@ import Bot.F
 import scala.concurrent.duration._
 
 class Bot(roomsApi: RoomsApi[F], messagesApi: MessagesApi[F])
-         (implicit timer: Timer[F]) {
+         (implicit T: Timer[F]) {
 
   def incoming: Stream[F, Message] = ???
 
-  def rooms(pollingTimeout: FiniteDuration): Stream[F, Room] = {
+  def rooms: Stream[F, Room] = {
     Stream
-      .fixedRate(pollingTimeout)
-      .evalMap(_ => roomsApi.listRooms())
-
-
-    ???
+      .repeatEval(roomsApi.listRooms())
+      .metered(1 second)
+      .mapAccumulate(0) {
+        case (seen, current) => (current.size, current.dropRight(seen)) // (all, diff)
+      }.map(_._2)
+      .flatMap(rooms => Stream.emits(rooms.reverse))
   }
 
-
-  def roomMessages(roomId: String)(pollingTimeout: FiniteDuration): Stream[F, Message] = {
+  def roomMessages(roomId: String): Stream[F, Message] = {
     Stream
       .repeatEval(messagesApi.listMessages(roomId))
       .mapAccumulate[ZonedDateTime, List[Message]](ZonedDateTime.now()) {

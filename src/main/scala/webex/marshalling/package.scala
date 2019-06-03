@@ -33,7 +33,8 @@ package object marshalling {
       }
 
     private def namedParameterList: String = {
-      method.asJson.pretty(Printer.noSpaces.copy(dropNullValues = true))
+      method.asJson
+        .pretty(Printer.noSpaces.copy(dropNullValues = true))
         .replace("\":\"", "=")
         .replace("\",\"", "&")
         .drop(2)        // {"
