@@ -1,6 +1,6 @@
 package webex
 
-import java.time.{LocalDateTime, ZoneId}
+import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 
 import cats.Semigroupal
@@ -28,9 +28,7 @@ class Bot(roomsApi: RoomsApi[F], messagesApi: MessagesApi[F])
     Stream
       .fixedRate(pollingTimeout)
       .evalMap(_ => roomsApi.listRooms())
-      .scan1 {
-        case (rooms1, rooms2) =>
-      }
+
 
     ???
   }
@@ -38,16 +36,16 @@ class Bot(roomsApi: RoomsApi[F], messagesApi: MessagesApi[F])
 
   def roomMessages(roomId: String)(pollingTimeout: FiniteDuration): Stream[F, Message] = {
     Stream
-      .fixedRate(pollingTimeout)
-      .evalMap[F, List[Message]](_ => messagesApi.listMessages(roomId))
-      //DateTimeFormatter.ISO_ZONED_DATE_TIME.format(LocalDateTime.now().atZone(ZoneId.of("Z")))
-      // ToDo - add initial time comparison
-      .mapAccumulate[String, List[Message]]("") {
+      .repeatEval(messagesApi.listMessages(roomId))
+      .mapAccumulate[ZonedDateTime, List[Message]](ZonedDateTime.now()) {
       case (lastCreated, messages) =>
-        val newMessages = messages.takeWhile(_.created != lastCreated)
-        val newLast = if (newMessages.isEmpty) lastCreated else newMessages.head.created
+        val newMessages = messages.takeWhile(m => parseTimestamp(m.created).compareTo(lastCreated) > 0)
+        val newLast = if (newMessages.isEmpty) lastCreated else parseTimestamp(newMessages.head.created)
         (newLast, newMessages)
 
     }.flatMap { case (_, messages) => Stream.emits(messages.reverse) }
   }
+
+  private def parseTimestamp(timestamp: String): ZonedDateTime =
+    ZonedDateTime.parse(timestamp).withZoneSameInstant(ZoneId.systemDefault())
 }

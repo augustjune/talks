@@ -1,9 +1,5 @@
 package webex
 
-import java.time.{LocalDate, LocalDateTime, ZoneId}
-import java.time.format.DateTimeFormatter
-import java.util.Date
-
 import cats.{Semigroupal, Show}
 
 import concurrent.duration._
@@ -24,6 +20,7 @@ object Run extends IOApp {
   def token: String = config.getString("token")
   def userId: String = config.getString("userId")
   def space: String = config.getString("space")
+  def direct: String = config.getString("direct")
 
   implicit val backend: SttpBackend[IO, Nothing] = AsyncHttpClientCatsBackend[IO]()
   val client: WebexClient[IO] = new SttpClient[IO](token)
@@ -39,8 +36,7 @@ object Run extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      _ <- IO(println(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(LocalDateTime.now().atZone(ZoneId.of("+2")))))
-      _ <- bot.roomMessages(space)(1.second).showLinesStdOut.compile.drain
+      _ <- bot.roomMessages(direct)(1.second).showLinesStdOut.compile.drain
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }
