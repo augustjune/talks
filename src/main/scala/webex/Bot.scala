@@ -1,11 +1,9 @@
 package webex
 
-import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
-import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
 
-import cats.Semigroupal
 import fs2._
-import cats.effect.{IO, Timer}
+import cats.effect.{Concurrent, IO, Timer}
 import webex.api.{MessagesApi, RoomsApi}
 import webex.model.{Message, Room}
 import webex.api.syntax._
@@ -22,7 +20,11 @@ import scala.concurrent.duration._
 class Bot(roomsApi: RoomsApi[F], messagesApi: MessagesApi[F])
          (implicit T: Timer[F]) {
 
-  def incoming: Stream[F, Message] = ???
+  def incoming(implicit C: Concurrent[F]): Stream[F, Message] = {
+    rooms
+      .map(roomMessages)
+      .parJoinUnbounded
+  }
 
   def rooms: Stream[F, Room] = {
     Stream
@@ -34,9 +36,10 @@ class Bot(roomsApi: RoomsApi[F], messagesApi: MessagesApi[F])
       .flatMap(rooms => Stream.emits(rooms.reverse))
   }
 
-  def roomMessages(roomId: String): Stream[F, Message] = {
+  def roomMessages(room: Room): Stream[F, Message] = {
     Stream
-      .repeatEval(messagesApi.listMessages(roomId))
+      .repeatEval(messagesApi.listMessages(room.id, mentionedPeople = if (room.isDirect) None else Some("me")))
+      .metered(1 second)
       .mapAccumulate[ZonedDateTime, List[Message]](ZonedDateTime.now()) {
       case (lastCreated, messages) =>
         val newMessages = messages.takeWhile(m => parseTimestamp(m.created).compareTo(lastCreated) > 0)

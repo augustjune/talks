@@ -31,7 +31,7 @@ class SttpClient[F[_] : Functor](token: String)(implicit backend: SttpBackend[F,
       .mapResponse(emptyOrSame)
       .mapResponse(r => decode[R](r).getOrElse(throw new RuntimeException(s"Failed to decode the response: $r")))
       .send()
-      .map (_.unsafeBody)
+      .map{r => println(r.header("Retry-After")); r.unsafeBody}
   }
 
   private def emptyOrSame(s: String): String =

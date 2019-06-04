@@ -37,7 +37,7 @@ object Run extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     for {
-      _ <- bot.rooms.showLinesStdOut.compile.drain
+      _ <- bot.incoming.showLinesStdOut.compile.drain
       _ <- IO(backend.close())
     } yield ExitCode.Success
 }
